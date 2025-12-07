@@ -75,3 +75,22 @@ jobs:
           name: backend-test-results-node-${{ matrix.node-version }}
           path: backend
           if-no-files-found: warn
+
+  docker:
+    name: Build backend Docker image
+    runs-on: ubuntu-latest
+    needs: test
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t devops-backend:${{ github.sha }} .
+
+      - name: Run tests inside Docker
+        run: docker run --rm devops-backend:${{ github.sha }} npm test
