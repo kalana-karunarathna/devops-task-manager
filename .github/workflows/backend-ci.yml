@@ -36,15 +36,17 @@ jobs:
         run: npm run lint
 
   test:
-    name: Test Backend
+    name: Test Backend (Mongo + Jest)
     runs-on: ubuntu-latest
     needs: lint
+    timeout-minutes: 10
 
     defaults:
       run:
         working-directory: backend
 
     strategy:
+      fail-fast: false
       matrix:
         node-version: [18, 20]
 
@@ -63,12 +65,13 @@ jobs:
         run: npm install
 
       - name: Run tests
+        env:
+          TZ: UTC
         run: npm test
 
-      - name: Upload test logs
+      - name: Upload Jest Results
         uses: actions/upload-artifact@v4
         with:
-          name: backend-test-output-${{ matrix.node-version }}
+          name: backend-test-results-node-${{ matrix.node-version }}
           path: backend
           if-no-files-found: warn
-          include-hidden-files: false
